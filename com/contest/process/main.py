@@ -8,12 +8,12 @@ import tensorflow as tf
 from matplotlib import pyplot as plt
 from sklearn.metrics import make_scorer
 from sklearn.model_selection import StratifiedKFold
-
 import config
 from metrics import gini_norm
 from DataReader import FeatureDictionary, DataParser
 sys.path.append("..")
 from DeepFM import DeepFM
+
 
 gini_scorer = make_scorer(gini_norm, greater_is_better=True, needs_proba=True)
 
@@ -142,21 +142,21 @@ dfm_params = {
     "batch_norm_decay": 0.995,
     "l2_reg": 0.01,
     "verbose": True,
-    "eval_metric": gini_norm,
+    #"eval_metric": gini_norm,
     "random_seed": config.RANDOM_SEED
 }
 y_train_dfm, y_test_dfm = _run_base_model_dfm(dfTrain, dfTest, folds, dfm_params)
 
 # ------------------ FM Model ------------------
-fm_params = dfm_params.copy()
-fm_params["use_deep"] = False
-y_train_fm, y_test_fm = _run_base_model_dfm(dfTrain, dfTest, folds, fm_params)
+#fm_params = dfm_params.copy()
+#fm_params["use_deep"] = False
+#y_train_fm, y_test_fm = _run_base_model_dfm(dfTrain, dfTest, folds, fm_params)
 
 
 # ------------------ DNN Model ------------------
-dnn_params = dfm_params.copy()
-dnn_params["use_fm"] = False
-y_train_dnn, y_test_dnn = _run_base_model_dfm(dfTrain, dfTest, folds, dnn_params)
+#dnn_params = dfm_params.copy()
+#dnn_params["use_fm"] = False
+#y_train_dnn, y_test_dnn = _run_base_model_dfm(dfTrain, dfTest, folds, dnn_params)
 
 
 

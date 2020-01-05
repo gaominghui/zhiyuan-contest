@@ -34,7 +34,7 @@ phase_name_index = [ (item[1],item[0]) for item in phase_name_inverse_index]
 
 
 
-def format_step1(train_path):
+def format_train(train_path):
     pd_list = []
 
     for f in os.listdir(train_path):
@@ -71,6 +71,60 @@ def format_step1(train_path):
             pd_list.append(cur_pd)
     all_data = pd.concat(pd_list)
     all_data.to_csv('data_format.csv',index=False)
+    print 'done'
+
+
+def foramt_test_4(file_path):
+    df = pd.read_csv(file_path,sep=',')[['Product_ID','TYPE_NUMBER','PRODUCTGROUP_NAME','PHASE_RESULT_STATE','PHASE_NAME','ID_F_PHASE_S']].query('ID_F_PHASE_S < 3').drop_duplicates()
+    df.columns = ['product_id', 'model_name', 'family_name', 'phase_label', 'phase_name', 'phase_index']
+    cureent_arr = []
+    for k, v in df.groupby(['product_id', 'model_name', 'family_name']):
+
+        tmp = v[['phase_label', 'phase_name', 'phase_index']].sort_values(by='phase_index').values.tolist()
+        # 查看是否缺0~9phase
+        phase_arr = [item[-1] for item in tmp]
+        for i in range(3):
+            if i not in phase_arr:
+                tmp.insert(i, [None, None, None])
+        ###以None 作为补充
+
+        arr = [item for sublist in tmp for item in sublist]
+        cureent_arr.append([ k[0], k[2], k[1]] + arr)
+    cur_pd = pd.DataFrame(cureent_arr,
+                          columns=['product_id', 'family_name', 'model_name', 'phase_1_label', 'phase_1_name',
+                                   'phase_1_index',
+                                   'phase_2_label', 'phase_2_name', 'phase_2_index', 'phase_3_label', 'phase_3_name',
+                                   'phase_3_index'])
+    cur_pd.to_csv('valid_4_format.csv',index=False)
+    print 'done'
+
+
+def format_test_11(file_path):
+    df = pd.read_csv(file_path, sep=',')[
+        ['Product_ID', 'TYPE_NUMBER', 'PRODUCTGROUP_NAME', 'PHASE_RESULT_STATE', 'PHASE_NAME', 'ID_F_PHASE_S']].query(
+        'ID_F_PHASE_S < 10').drop_duplicates()
+    df.columns = ['product_id', 'model_name', 'family_name', 'phase_label', 'phase_name', 'phase_index']
+    cureent_arr = []
+    for k, v in df.groupby(['product_id', 'model_name', 'family_name']):
+
+        tmp = v[['phase_label', 'phase_name', 'phase_index']].sort_values(by='phase_index').values.tolist()
+        # 查看是否缺0~9phase
+        phase_arr = [item[-1] for item in tmp]
+        for i in range(10):
+            if i not in phase_arr:
+                tmp.insert(i, [None, None, None])
+        ###以None 作为补充
+
+        arr = [item for sublist in tmp for item in sublist]
+        cureent_arr.append([k[0], k[2], k[1]] + arr)
+    cur_pd = pd.DataFrame(cureent_arr,
+                          columns=[ 'product_id', 'family_name','model_name','phase_1_label','phase_1_name','phase_1_index',
+                                                         'phase_2_label', 'phase_2_name', 'phase_2_index','phase_3_label','phase_3_name','phase_3_index',
+                                                         'phase_4_label', 'phase_4_name', 'phase_4_index','phase_5_label','phase_5_name','phase_5_index',
+                                                         'phase_6_label', 'phase_6_name', 'phase_6_index','phase_7_label','phase_7_name','phase_7_index',
+                                                         'phase_8_label', 'phase_8_name', 'phase_8_index','phase_9_label','phase_9_name','phase_9_index',
+                                                         'phase_10_label', 'phase_10_name', 'phase_10_index'])
+    cur_pd.to_csv('valid_11_format.csv', index=False)
     print 'done'
 
 
@@ -132,8 +186,12 @@ def get_product_family_model(train_path):
 
 
 if __name__ =='__main__':
-    train_path = '/Users/gaominghui/Downloads/INSPEC_Data/INSPEC_train/'
-    format_step1(train_path)
+    #train_path = '/Users/gaominghui/Downloads/INSPEC_Data/INSPEC_train/'
+    file_4_path = '/Users/gaominghui/Downloads/INSPEC_Data/INSPEC_validation/validation_predict_4.csv'
+    file_11_path = '/Users/gaominghui/Downloads/INSPEC_Data/INSPEC_validation/validation_predict_11.csv'
+    #format_train(train_path)
+    #foramt_test_4(file_4_path)
+    format_test_11(file_11_path)
     #get_product_family_model(train_path)
     #get_phase_name(train_path)
 
