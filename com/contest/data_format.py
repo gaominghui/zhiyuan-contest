@@ -183,6 +183,11 @@ def get_product_family_model(train_path):
 
 
 
+def trans_1(file_in,file_out):
+    df =pd.read_csv(file_in)
+    df['label'] = df['label']-1
+    df.to_csv(file_out,index=False)
+
 
 
 if __name__ =='__main__':
@@ -191,9 +196,10 @@ if __name__ =='__main__':
     file_11_path = '/Users/gaominghui/Downloads/INSPEC_Data/INSPEC_validation/validation_predict_11.csv'
     #format_train(train_path)
     #foramt_test_4(file_4_path)
-    format_test_11(file_11_path)
+    #format_test_11(file_11_path)
     #get_product_family_model(train_path)
     #get_phase_name(train_path)
+    trans_1('./data_format.csv','./data_format_label01.csv')
 
 
 

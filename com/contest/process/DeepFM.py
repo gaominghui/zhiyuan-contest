@@ -1,3 +1,7 @@
+# coding:utf-8
+# !/usr/bin/python
+# -*- coding:UTF-8 -*-
+
 """
 Tensorflow implementation of DeepFM [1]
 
@@ -5,6 +9,10 @@ Reference:
 [1] DeepFM: A Factorization-Machine based Neural Network for CTR Prediction,
     Huifeng Guo, Ruiming Tang, Yunming Yey, Zhenguo Li, Xiuqiang He.
 """
+
+
+
+
 
 import numpy as np
 import tensorflow as tf
@@ -123,6 +131,9 @@ class DeepFM(BaseEstimator, TransformerMixin):
                 concat_input = self.y_deep
             self.out = tf.add(tf.matmul(concat_input, self.weights["concat_projection"]), self.weights["concat_bias"])
 
+
+            self.loss  =tf.nn.softmax_cross_entropy_with_logits(logits=self.out,labels=self.label)
+            '''
             # loss
             if self.loss_type == "logloss":
                 self.out = tf.nn.sigmoid(self.out)
@@ -137,6 +148,7 @@ class DeepFM(BaseEstimator, TransformerMixin):
                     for i in range(len(self.deep_layers)):
                         self.loss += tf.contrib.layers.l2_regularizer(
                             self.l2_reg)(self.weights["layer_%d"%i])
+            '''
 
             # optimizer
             if self.optimizer_type == "adam":

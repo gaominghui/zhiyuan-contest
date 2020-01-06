@@ -1,7 +1,9 @@
-
+# coding:utf-8
+# !/usr/bin/python
+# -*- coding:UTF-8 -*-
 # set the path-to-files
-TRAIN_FILE = "./data/train.csv"
-TEST_FILE = "./data/test.csv"
+TRAIN_FILE = "../data_format_label01.csv"
+TEST_FILE = "../valid_11_format.csv"
 
 SUB_DIR = "./output"
 
@@ -16,6 +18,10 @@ CATEGORICAL_COLS = [
     # 'ps_car_04_cat', 'ps_car_05_cat', 'ps_car_06_cat',
     # 'ps_car_07_cat', 'ps_car_08_cat', 'ps_car_09_cat',
     # 'ps_car_10_cat', 'ps_car_11_cat',
+    'family_name','model_name',
+    'phase_1_name','phase_2_name','phase_3_name',
+    'phase_4_name','phase_5_name','phase_6_name',
+    'phase_7_name','phase_8_name','phase_9_name','phase_10_name'
 ]
 
 NUMERIC_COLS = [
@@ -27,19 +33,14 @@ NUMERIC_COLS = [
     # "ps_calc_15_bin", "ps_calc_16_bin", "ps_calc_17_bin",
     # "ps_calc_18_bin", "ps_calc_19_bin", "ps_calc_20_bin",
     # numeric
-    "ps_reg_01", "ps_reg_02", "ps_reg_03",
-    "ps_car_12", "ps_car_13", "ps_car_14", "ps_car_15",
-
-    # feature engineering
-    "missing_feat", "ps_car_13_x_ps_reg_03",
+    "phase_1_label", "phase_2_label", "phase_3_label",
+    "phase_4_label", "phase_5_label", "phase_6_label",
+    "phase_7_label", "phase_8_label", "phase_9_label", "phase_10_label"
 ]
 
 IGNORE_COLS = [
-    "id", "target",
-    "ps_calc_01", "ps_calc_02", "ps_calc_03", "ps_calc_04",
-    "ps_calc_05", "ps_calc_06", "ps_calc_07", "ps_calc_08",
-    "ps_calc_09", "ps_calc_10", "ps_calc_11", "ps_calc_12",
-    "ps_calc_13", "ps_calc_14",
-    "ps_calc_15_bin", "ps_calc_16_bin", "ps_calc_17_bin",
-    "ps_calc_18_bin", "ps_calc_19_bin", "ps_calc_20_bin"
+    "product_id", "label",
+    "phase_1_index", "phase_2_index", "phase_3_index",
+    "phase_4_index","phase_5_index", "phase_6_index",
+    "phase_7_index", "phase_8_index","phase_9_index", "phase_10_index"
 ]

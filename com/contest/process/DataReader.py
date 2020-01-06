@@ -1,3 +1,7 @@
+# coding:utf-8
+# !/usr/bin/python
+# -*- coding:UTF-8 -*-
+
 """
 A data parser for Porto Seguro's Safe Driver Prediction competition's dataset.
 URL: https://www.kaggle.com/c/porto-seguro-safe-driver-prediction
@@ -22,11 +26,11 @@ class FeatureDictionary(object):
 
     def gen_feat_dict(self):
         if self.dfTrain is None:
-            dfTrain = pd.read_csv(self.trainfile)
+            dfTrain = pd.read_csv(self.trainfile).dropna()
         else:
             dfTrain = self.dfTrain
         if self.dfTest is None:
-            dfTest = pd.read_csv(self.testfile)
+            dfTest = pd.read_csv(self.testfile).dropna()
         else:
             dfTest = self.dfTest
         df = pd.concat([dfTrain, dfTest])
@@ -58,11 +62,11 @@ class DataParser(object):
         else:
             dfi = pd.read_csv(infile)
         if has_label:
-            y = dfi["target"].values.tolist()
-            dfi.drop(["id", "target"], axis=1, inplace=True)
+            y = dfi["label"].values.tolist()
+            dfi.drop(["product_id", "label"], axis=1, inplace=True)
         else:
-            ids = dfi["id"].values.tolist()
-            dfi.drop(["id"], axis=1, inplace=True)
+            ids = dfi["product_id"].values.tolist()
+            dfi.drop(["product_id"], axis=1, inplace=True)
         # dfi for feature index
         # dfv for feature value which can be either binary (1/0) or float (e.g., 10.24)
         dfv = dfi.copy()
