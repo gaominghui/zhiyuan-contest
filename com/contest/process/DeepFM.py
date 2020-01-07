@@ -17,9 +17,10 @@ Reference:
 import numpy as np
 import tensorflow as tf
 from sklearn.base import BaseEstimator, TransformerMixin
-from sklearn.metrics import roc_auc_score
+from sklearn.metrics import f1_score,accuracy_score,recall_score
 from time import time
 from tensorflow.contrib.layers.python.layers import batch_norm as batch_norm
+from metrics import accuracy
 #from yellowfin import YFOptimizer
 
 
@@ -33,7 +34,7 @@ class DeepFM(BaseEstimator, TransformerMixin):
                  batch_norm=0, batch_norm_decay=0.995,
                  verbose=False, random_seed=2016,
                  use_fm=True, use_deep=True,
-                 loss_type="logloss", eval_metric=roc_auc_score,
+                 loss_type="logloss",
                  l2_reg=0.0, greater_is_better=True):
         assert (use_fm or use_deep)
         assert loss_type in ["logloss", "mse"], \
@@ -62,7 +63,6 @@ class DeepFM(BaseEstimator, TransformerMixin):
         self.verbose = verbose
         self.random_seed = random_seed
         self.loss_type = loss_type
-        self.eval_metric = eval_metric
         self.greater_is_better = greater_is_better
         self.train_result, self.valid_result = [], []
 
@@ -81,7 +81,7 @@ class DeepFM(BaseEstimator, TransformerMixin):
             #feature_value
             self.feat_value = tf.placeholder(tf.float32, shape=[None, None],
                                                  name="feat_value")  # None * F
-            self.label = tf.placeholder(tf.float32, shape=[None, 1], name="label")  # None * 1
+            self.label = tf.placeholder(tf.int64, shape=[None, 1], name="label")  # None * 1
             self.dropout_keep_fm = tf.placeholder(tf.float32, shape=[None], name="dropout_keep_fm")
             self.dropout_keep_deep = tf.placeholder(tf.float32, shape=[None], name="dropout_keep_deep")
             self.train_phase = tf.placeholder(tf.bool, name="train_phase")
@@ -132,23 +132,11 @@ class DeepFM(BaseEstimator, TransformerMixin):
             self.out = tf.add(tf.matmul(concat_input, self.weights["concat_projection"]), self.weights["concat_bias"])
 
 
-            self.loss  =tf.nn.softmax_cross_entropy_with_logits(logits=self.out,labels=self.label)
-            '''
-            # loss
-            if self.loss_type == "logloss":
-                self.out = tf.nn.sigmoid(self.out)
-                self.loss = tf.losses.log_loss(self.label, self.out)
-            elif self.loss_type == "mse":
-                self.loss = tf.nn.l2_loss(tf.subtract(self.label, self.out))
-            # l2 regularization on weights
-            if self.l2_reg > 0:
-                self.loss += tf.contrib.layers.l2_regularizer(
-                    self.l2_reg)(self.weights["concat_projection"])
-                if self.use_deep:
-                    for i in range(len(self.deep_layers)):
-                        self.loss += tf.contrib.layers.l2_regularizer(
-                            self.l2_reg)(self.weights["layer_%d"%i])
-            '''
+            self.loss  =tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=self.out,labels=self.label))
+            self.prediction = tf.cast(tf.argmax(self.out,1), tf.int64)
+
+            #self.accuracy = tf.reduce_mean( tf.cast(tf.equal(self.prediction, self.label), tf.float32))
+
 
             # optimizer
             if self.optimizer_type == "adam":
@@ -301,18 +289,18 @@ class DeepFM(BaseEstimator, TransformerMixin):
                 self.fit_on_batch(Xi_batch, Xv_batch, y_batch)
 
             # evaluate training and validation datasets
-            train_result = self.evaluate(Xi_train, Xv_train, y_train)
-            self.train_result.append(train_result)
+            train_accuracy,train_recall,train_f1 = self.evaluate(Xi_train, Xv_train, y_train)
+            self.train_result.append(train_accuracy)
             if has_valid:
-                valid_result = self.evaluate(Xi_valid, Xv_valid, y_valid)
-                self.valid_result.append(valid_result)
+                valid_accuracy,valid_recall,valid_f1 = self.evaluate(Xi_valid, Xv_valid, y_valid)
+                self.valid_result.append(valid_accuracy)
             if self.verbose > 0 and epoch % self.verbose == 0:
                 if has_valid:
-                    print("[%d] train-result=%.4f, valid-result=%.4f [%.1f s]"
-                        % (epoch + 1, train_result, valid_result, time() - t1))
+                    print("[%d] train-acc=%.4f,train-recall=%.4f,train-f1=%.4f,valid-acc=%.4f ,valid-recall=%.4f,valid-f1=%.4f [%.1f s]"
+                        % (epoch + 1, train_accuracy, train_recall,train_f1,valid_accuracy,valid_recall,valid_f1, time() - t1))
                 else:
                     print("[%d] train-result=%.4f [%.1f s]"
-                        % (epoch + 1, train_result, time() - t1))
+                        % (epoch + 1, train_accuracy, time() - t1))
             if has_valid and early_stopping and self.training_termination(self.valid_result):
                 break
 
@@ -335,10 +323,10 @@ class DeepFM(BaseEstimator, TransformerMixin):
                                                                 self.batch_size, i)
                     self.fit_on_batch(Xi_batch, Xv_batch, y_batch)
                 # check
-                train_result = self.evaluate(Xi_train, Xv_train, y_train)
-                if abs(train_result - best_train_score) < 0.001 or \
-                    (self.greater_is_better and train_result > best_train_score) or \
-                    ((not self.greater_is_better) and train_result < best_train_score):
+                train_result_accuracy = self.evaluate(Xi_train, Xv_train, y_train)
+                if abs(train_result_accuracy - best_train_score) < 0.001 or \
+                    (self.greater_is_better and train_result_accuracy > best_train_score) or \
+                    ((not self.greater_is_better) and train_result_accuracy < best_train_score):
                     break
 
 
@@ -378,7 +366,7 @@ class DeepFM(BaseEstimator, TransformerMixin):
                          self.dropout_keep_fm: [1.0] * len(self.dropout_fm),
                          self.dropout_keep_deep: [1.0] * len(self.dropout_deep),
                          self.train_phase: False}
-            batch_out = self.sess.run(self.out, feed_dict=feed_dict)
+            batch_out = self.sess.run(self.prediction, feed_dict=feed_dict)
 
             if batch_index == 0:
                 y_pred = np.reshape(batch_out, (num_batch,))
@@ -399,5 +387,8 @@ class DeepFM(BaseEstimator, TransformerMixin):
         :return: metric of the evaluation
         """
         y_pred = self.predict(Xi, Xv)
-        return self.eval_metric(y, y_pred)
+        print y_pred
+        print '*'*100
+        print y
+        return accuracy_score(y,y_pred),recall_score(y,y_pred),f1_score(y,y_pred)
 

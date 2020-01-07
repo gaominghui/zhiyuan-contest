@@ -2,6 +2,7 @@
 # !/usr/bin/python
 # -*- coding:UTF-8 -*-
 import numpy as np
+from sklearn.metrics import f1_score
 
 def gini(actual, pred):
     assert (len(actual) == len(pred))
@@ -15,3 +16,11 @@ def gini(actual, pred):
 
 def gini_norm(actual, pred):
     return gini(actual, pred) / gini(actual, actual)
+
+
+def accuracy(actual,pred):
+    assert (len(actual) == len(pred))
+    return f1_score(actual, pred)
+
+
+
