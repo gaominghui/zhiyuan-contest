@@ -208,6 +208,52 @@ def trans_2(file_in,file_out):
         'phase_10_label', 'phase_10_name']].to_csv(file_out,index=False)
 
 
+def trans_2(file_in,file_out):
+    df = pd.read_csv(file_in)
+    df['phase_1_label']=df['phase_1_label']-1
+    df['phase_2_label']=df['phase_2_label']-1
+    df['phase_3_label']=df['phase_3_label']-1
+    df['phase_4_label']=df['phase_4_label']-1
+    df['phase_5_label']=df['phase_5_label']-1
+    df['phase_6_label']=df['phase_6_label']-1
+    df['phase_7_label']=df['phase_7_label']-1
+    df['phase_8_label']=df['phase_8_label']-1
+    df['phase_9_label']=df['phase_9_label']-1
+    df['phase_10_label']=df['phase_10_label']-1
+    df[['label','product_id', 'family_name','model_name','phase_1_label','phase_1_name',
+        'phase_2_label', 'phase_2_name', 'phase_3_label','phase_3_name',
+        'phase_4_label', 'phase_4_name','phase_5_label','phase_5_name',
+        'phase_6_label', 'phase_6_name','phase_7_label','phase_7_name',
+        'phase_8_label', 'phase_8_name','phase_9_label','phase_9_name',
+        'phase_10_label', 'phase_10_name']].to_csv(file_out,index=False)
+
+def test4_trans_2(file_in,file_out):
+    df = pd.read_csv(file_in)
+    df['phase_1_label']=df['phase_1_label']-1
+    df['phase_2_label']=df['phase_2_label']-1
+    df['phase_3_label']=df['phase_3_label']-1
+
+    df[['product_id', 'family_name','model_name','phase_1_label','phase_1_name',
+        'phase_2_label', 'phase_2_name', 'phase_3_label','phase_3_name']].to_csv(file_out,index=False)
+
+def test11_trans_2(file_in,file_out):
+    df = pd.read_csv(file_in)
+    df['phase_1_label']=df['phase_1_label']-1
+    df['phase_2_label']=df['phase_2_label']-1
+    df['phase_3_label']=df['phase_3_label']-1
+    df['phase_4_label']=df['phase_4_label']-1
+    df['phase_5_label']=df['phase_5_label']-1
+    df['phase_6_label']=df['phase_6_label']-1
+    df['phase_7_label']=df['phase_7_label']-1
+    df['phase_8_label']=df['phase_8_label']-1
+    df['phase_9_label']=df['phase_9_label']-1
+    df['phase_10_label']=df['phase_10_label']-1
+    df[['product_id', 'family_name','model_name','phase_1_label','phase_1_name',
+        'phase_2_label', 'phase_2_name', 'phase_3_label','phase_3_name',
+        'phase_4_label', 'phase_4_name','phase_5_label','phase_5_name',
+        'phase_6_label', 'phase_6_name','phase_7_label','phase_7_name',
+        'phase_8_label', 'phase_8_name','phase_9_label','phase_9_name',
+        'phase_10_label', 'phase_10_name']].to_csv(file_out,index=False)
 
 
 
@@ -221,7 +267,10 @@ if __name__ =='__main__':
     #get_product_family_model(train_path)
     #get_phase_name(train_path)
     #trans_1('./data_format.csv','./data_format_label01.csv')
-    trans_2('./data_format_label01.csv','./data_format_label01_2.csv')
+    #trans_2('./data_format_label01.csv','./data_format_label01_2.csv')
+    test4_trans_2('./valid_4_format.csv','./valid_4_format_2.csv')
+    test11_trans_2('./valid_11_format.csv','./valid_11_format_2.csv')
+
 
 
 
